@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <title>Багш ChatBot - Вэб Хувилбар</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .chat-container { 
+            width: 400px; 
+            height: 550px; 
+            background: #ffffff; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
+        .chat-header {
+            background: #2d3748;
+            color: white;
+            padding: 18px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .chat-box { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            background: #f8fafc; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        .input-box { 
+            display: flex; 
+            padding: 15px; 
+            background: #ffffff; 
+            border-top: 1px solid #e2e8f0; 
+        }
+        .input-box input { 
+            flex: 1; 
+            padding: 12px 15px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 30px; 
+            outline: none; 
+            font-size: 14px;
+        }
+        .input-box button { 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            padding: 0 20px; 
+            margin-left: 8px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-weight: 600;
+        }
+        .message { 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            max-width: 80%; 
+            word-break: break-word; 
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .user-message { 
+            background: #667eea; 
+            color: white; 
+            align-self: flex-end; 
+            border-bottom-right-radius: 2px;
+        }
+        .bot-message { 
+            background: #e2e8f0; 
+            color: #1a202c; 
+            align-self: flex-start; 
+            border-bottom-left-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">👨‍🏫 Багш ChatBot</div>
+        <div id="chat-box" class="chat-box">
+            <div class="message bot-message">Сайн байна уу? Надад асуултаа асуугаарай.</div>
+        </div>
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="Мессеж бичих..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Илгээх</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const inputField = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            const userText = inputField.value.trim();
+            
+            if (!userText) return;
+
+            chatBox.innerHTML += `<div class="message user-message">${userText}</div>`;
+            inputField.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            fetch('/get', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'msg=' + encodeURIComponent(userText)
+            })
+            .then(response => response.text())
+            .then(data => {
+                chatBox.innerHTML += `<div class="message bot-message">${data}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+
+</body>
+</html>

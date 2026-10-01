@@ -1,8 +1,15 @@
+from flask import Flask, render_template, request
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 
-chatbot = ChatBot('TeacherBot')
+app = Flask(__name__)
 
+chatbot = ChatBot(
+    'TeacherBot',
+    logic_adapters=[
+        'chatterbot.logic.BestMatch'
+    ]
+)
 training_data = [
     "Сайн уу", "Сайн байна уу!",
     "Багш аа, өнөөдрийн хичээл юу вэ?", "Өнөөдөр Python програмчлалын хичээл орно.",
@@ -19,15 +26,15 @@ training_data = [
 trainer = ListTrainer(chatbot)
 trainer.train(training_data)
 
-print("Багш ChatBot: Сайн байна уу! Надад асуултаа асуугаарай.")
-while True:
-    try:
-        user_input = input("Та: ")
-        if user_input.lower() in ['гарах', 'quit', 'exit']:
-            print("Багш ChatBot: Баяртай!")
-            break
-        response = chatbot.get_response(user_input)
-        print("Багш ChatBot:", response)
-    except (KeyboardInterrupt, EOFError, SystemExit):
-        print("\nБагш ChatBot: Баяртай!")
-        break
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/get", methods=["POST"])
+def chatbot_response():
+    user_text = request.form.get("msg")
+    response = chatbot.get_response(user_text)
+    return str(response)
+
+if __name__ == "__main__":
+    app.run(debug=True)

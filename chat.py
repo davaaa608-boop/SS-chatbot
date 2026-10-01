@@ -1,1 +1,0 @@
-Za ene file nemsen
